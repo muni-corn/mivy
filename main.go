@@ -1,8 +1,14 @@
 package main
 
-import "mivy/task"
+import (
+	"fmt"
+)
 
 func main() {
-	t := task.Task{Name: "Name", Span: 7, DueTime: 1000000}
-	t.Display()
+	var tasks []Task
+	fmt.Println("Welcome to Mivy!")
+	var foo Task
+	foo.Prompt()
+	tasks = append(tasks, foo)
+	tasks[0].Display();
 }
