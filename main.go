@@ -7,22 +7,58 @@ import (
 func main() {
 	var tasks []Task
 	fmt.Println("Welcome to Mivy!")
-	addTask(&tasks)
-	tasks[0].Display()
+
+	displayHelp()
+	for {
+		var input string
+		fmt.Print("> ")
+		fmt.Scanln(&input)
+		switch input[0] {
+		case 'a':
+			addTask(&tasks)
+		case 'e':
+			fmt.Println("TODO: edit a task")
+		case 'd':
+			fmt.Println("TODO: delete a task")
+		case 'v':
+			fmt.Println("TODO: view a todo list")
+		case 's':
+			fmt.Println("TODO: settings")
+		case 'q':
+			quit()
+			return;
+		case 'h':
+			displayHelp()
+		}
+	}
 }
 
-func addTask(dest *[]Task) {
+func addTask(tasks *[]Task) {
 	var foo Task
 	foo.Prompt()
-	*dest = append(*dest, foo)
+	*tasks = append(*tasks, foo)
+	fmt.Println("Task added! Here are all the tasks you have now:")
+	viewTasks(*tasks)
+	fmt.Println();
+}
+
+func viewTasks(tasks []Task) {
+	for _, task := range tasks {
+		task.Display()
+	}
+}
+
+func quit() {
+	fmt.Println("TODO: save work and quit")
 }
 
 func displayHelp() {
-	fmt.Println("Here's what you can do:");
-	fmt.Println("\ta\tadd a task");
-	fmt.Println("\te\tedit a task");
-	fmt.Println("\td\tdelete a task");
-	fmt.Println("\tv\tview a todo list");
-	fmt.Println("\ts\tsettings");
-	fmt.Println("\th\thelp");
+	fmt.Println("Here's what you can do:")
+	fmt.Println("\ta\tadd a task")
+	fmt.Println("\te\tedit a task")
+	fmt.Println("\td\tdelete a task")
+	fmt.Println("\tv\tview a todo list")
+	fmt.Println("\ts\tsettings")
+	fmt.Println("\tq\tquit")
+	fmt.Println("\th\thelp")
 }
