@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
+	t "mivy/tasks"
 )
 
 func main() {
-	var tasks []Task
+	var tasks []t.Task
 	fmt.Println("Welcome to Mivy!")
 
 	displayHelp()
@@ -33,8 +34,8 @@ func main() {
 	}
 }
 
-func addTask(tasks *[]Task) {
-	var foo Task
+func addTask(tasks *[]t.Task) {
+	var foo t.Task
 	foo.Prompt()
 	*tasks = append(*tasks, foo)
 	fmt.Println("Task added! Here are all the tasks you have now:")
@@ -42,7 +43,7 @@ func addTask(tasks *[]Task) {
 	fmt.Println();
 }
 
-func viewTasks(tasks []Task) {
+func viewTasks(tasks []t.Task) {
 	for _, task := range tasks {
 		task.Display()
 	}
