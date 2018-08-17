@@ -7,10 +7,11 @@ import (
 
 // Task is a task. this comment is just here to make gofmt happy
 type Task struct {
-	Name            string
-	Span            uint
-	UserDueTime     time.Time
-	ModifiedDueTime time.Time
+	Name            string    `json:"name"`
+	Span            uint      `json:"span"`
+	UserDueTime     time.Time `json:"userDueTime"`
+	ModifiedDueTime time.Time `json:"modifiedDueTime"`
+	Done            bool      `json:"done"`
 }
 
 // Prompt prompts the user for the information of Task t
@@ -28,11 +29,11 @@ func (t *Task) Prompt() {
 	var dueInput string
 	fmt.Print("When is this task due? (mm/dd/yyyy) ")
 	fmt.Scanln(&dueInput)
-	
+
 	var err error
 	t.UserDueTime, err = time.ParseInLocation("01/02/2006", dueInput, time.Local)
 	if err != nil {
-		_ = fmt.Errorf(err.Error());
+		_ = fmt.Errorf(err.Error())
 	}
 }
 
