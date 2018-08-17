@@ -3,11 +3,13 @@ package main
 import (
 	"fmt"
 	t "mivy/tasks"
+	"mivy/data"
 )
 
 func main() {
-	var tasks []t.Task
+	tasks := readData();
 	fmt.Println("Welcome to Mivy!")
+
 
 	displayHelp()
 	for {
@@ -17,16 +19,20 @@ func main() {
 		switch input[0] {
 		case 'a':
 			addTask(&tasks)
+			saveData(tasks)
 		case 'e':
 			fmt.Println("TODO: edit a task")
+			saveData(tasks)
 		case 'd':
 			fmt.Println("TODO: delete a task")
+			saveData(tasks)
 		case 'v':
 			fmt.Println("TODO: view a todo list")
 		case 's':
 			fmt.Println("TODO: settings")
+			saveData(tasks)
 		case 'q':
-			quit()
+			quit(tasks)
 			return;
 		case 'h':
 			displayHelp()
@@ -49,8 +55,32 @@ func viewTasks(tasks []t.Task) {
 	}
 }
 
-func quit() {
-	fmt.Println("TODO: save work and quit")
+
+func readData() (tasks []t.Task) {
+	var d data.Data;
+	data.ReadData(&d);
+	tasks = d.Tasks;
+	
+	return
+}
+
+// saveData creates a Data object with the given
+// information and uses the mivy/data package
+// to write the data to a file.
+func saveData(tasks []t.Task) {
+	fmt.Println("Saving data...")
+
+	// create the Data object and save it
+	d := data.Data{Tasks: tasks}
+	data.WriteData(d);
+	
+	fmt.Println("Saved!")
+	fmt.Println()
+}
+
+func quit(tasks []t.Task) {
+	saveData(tasks);
+	fmt.Println("Goodbye :)");
 }
 
 func displayHelp() {
