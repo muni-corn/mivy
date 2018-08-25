@@ -57,7 +57,7 @@ func ReadData(d *Data) {
 
 	switch version {
 	case 1:
-		fmt.Println(d.Tasks)
+		// fmt.Println(d.Tasks)
 	}
 }
 
