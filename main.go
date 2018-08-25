@@ -5,11 +5,13 @@ import (
 	"mivy/data"
 	t "mivy/tasks"
 	"sort"
+	"time"
 )
 
 func main() {
 	tasks := readData()
 	fmt.Println("Welcome to Mivy!")
+	fmt.Println("Today is day", time.Now().Unix()/(3600*24))
 
 	displayHelp()
 	for {
@@ -27,7 +29,7 @@ func main() {
 			fmt.Println("TODO: delete a task")
 			saveData(tasks)
 		case 'v':
-			fmt.Println("TODO: view a todo list")
+			viewTasks(&tasks)
 		case 's':
 			fmt.Println("TODO: settings")
 			saveData(tasks)
@@ -44,11 +46,11 @@ func main() {
 // per day as much as possible
 func sortTasks(tasks *[]t.Task) {
 	// sorts the tasks by due date, or span, or name
-	sort.Slice(tasks, func(i, j int) bool {
+	sort.Slice(*tasks, func(i, j int) bool {
 		lhs, rhs := (*tasks)[i], (*tasks)[j]
 		switch {
-		case lhs.GetUserDueTimeDay() != rhs.GetUserDueTimeDay():
-			return lhs.GetUserDueTimeDay() < rhs.GetUserDueTimeDay()
+		case lhs.UserDueDay != rhs.UserDueDay:
+			return lhs.UserDueDay < rhs.UserDueDay
 		case lhs.UserSpan != rhs.UserSpan:
 			return lhs.UserSpan < rhs.UserSpan
 		default:
@@ -56,7 +58,6 @@ func sortTasks(tasks *[]t.Task) {
 		}
 	})
 
-	// the number of dates that match
 	var firstMatchIndex = len(*tasks) - 1
 	var taskToMatchForDate = (*tasks)[firstMatchIndex]
 	for i := len(*tasks) - 2; i >= 0; i-- {
@@ -68,24 +69,42 @@ func sortTasks(tasks *[]t.Task) {
 		// previous due dates over time
 
 		task := (*tasks)[i]
-		if task.GetUserDueTimeDay() == taskToMatchForDate.GetUserDueTimeDay() {
+		if task.UserDueDay == taskToMatchForDate.UserDueDay {
+			// fmt.Println("\t===>", task.Name, "and", taskToMatchForDate.Name, "have matching due dates. continuing.")
 			continue
 		} else {
-			var numMatchingTasks = uint(firstMatchIndex - i)
-			var daysBetweenDates = task.GetUserDueTimeDay() - taskToMatchForDate.GetUserDueTimeDay()
-			var x uint = 1 // used for multiplying daysBetweenDates / numMatchingTasks
+			// fmt.Println("\t===>", task.Name, "and", taskToMatchForDate.Name, "have different dates. sorting all preceding dates")
+
+			numMatchingTasks := (firstMatchIndex - i)
+			// fmt.Println("\t\t-> This amounts to", numMatchingTasks, "tasks, right?")
+
+			daysBetweenDates := taskToMatchForDate.UserDueDay - task.UserDueDay
+			// fmt.Println("\t\t-> There are", daysBetweenDates, "days between the two aforementioned tasks")
+
+			newSpan := daysBetweenDates / numMatchingTasks
+			// fmt.Println("\t\t-> we'll try to set the new span of these tasks to", newSpan)
+
+			var x = 1 // used for multiplying daysBetweenDates / numMatchingTasks
 			for j := i + 1; j <= firstMatchIndex; j++ {
 				jTask := (*tasks)[j]
+				// fmt.Println("\t\t-> looking at", jTask.Name, "due on day", jTask.UserDueDay)
 
-				newSpan := daysBetweenDates / numMatchingTasks
-				jTask.ModifiedDueTime = task.UserDueTime + daysBetweenDates*x/numMatchingTasks
+				daysToAdd := (daysBetweenDates) * x / numMatchingTasks
+				// fmt.Println("\t\t-> also, we're going to add", daysToAdd, "days out from the due date of", task.Name, "which is due on day", task.UserDueDay)
+
+				jTask.ModifiedDueDay = task.UserDueDay + daysToAdd
+				// fmt.Println("\t\t-> so, the new due day of", jTask.Name, "is", jTask.ModifiedDueDay)
 				x++
 				if newSpan > jTask.UserSpan {
 					jTask.ModifiedSpan = newSpan
 				} else {
 					jTask.ModifiedSpan = jTask.UserSpan
 				}
+
+				// so i guess we have to send this back to the slice
+				(*tasks)[j] = jTask;
 			}
+			firstMatchIndex = i
 		}
 	}
 }
@@ -95,13 +114,15 @@ func addTask(tasks *[]t.Task) {
 	foo.Prompt()
 	*tasks = append(*tasks, foo)
 	fmt.Println("Task added! Here are all the tasks you have now:")
-	viewTasks(*tasks)
+	viewTasks(tasks)
 	fmt.Println()
 }
 
-func viewTasks(tasks []t.Task) {
-	for _, task := range tasks {
-		task.Display()
+func viewTasks(tasks *[]t.Task) {
+	sortTasks(tasks)
+	currentDay := int(time.Now().Unix() / (3600 * 24))
+	for _, task := range *tasks {
+		task.Display(currentDay)
 	}
 }
 
