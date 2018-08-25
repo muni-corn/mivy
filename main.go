@@ -59,7 +59,6 @@ func sortTasks(tasks *[]t.Task) {
 	})
 
 	var firstMatchIndex = len(*tasks) - 1
-	var taskToMatchForDate = (*tasks)[firstMatchIndex]
 	for i := len(*tasks) - 2; i >= 0; i-- {
 		// step backwards and find how many tasks exist on the
 		// same due date until we come across a task that is not
@@ -69,6 +68,9 @@ func sortTasks(tasks *[]t.Task) {
 		// previous due dates over time
 
 		task := (*tasks)[i]
+		taskToMatchForDate := (*tasks)[firstMatchIndex]
+		// fmt.Println("\t===> Starting iteration on", task.Name)
+		// fmt.Println("\t\t-> firstMatchIndex points to", (*tasks)[firstMatchIndex].Name)
 		if task.UserDueDay == taskToMatchForDate.UserDueDay {
 			// fmt.Println("\t===>", task.Name, "and", taskToMatchForDate.Name, "have matching due dates. continuing.")
 			continue
@@ -84,26 +86,34 @@ func sortTasks(tasks *[]t.Task) {
 			newSpan := daysBetweenDates / numMatchingTasks
 			// fmt.Println("\t\t-> we'll try to set the new span of these tasks to", newSpan)
 
-			var x = 1 // used for multiplying daysBetweenDates / numMatchingTasks
-			for j := i + 1; j <= firstMatchIndex; j++ {
-				jTask := (*tasks)[j]
-				// fmt.Println("\t\t-> looking at", jTask.Name, "due on day", jTask.UserDueDay)
+			// if numMatchingTasks > 1 {
+				var x = 1 // used for multiplying daysBetweenDates / numMatchingTasks
+				for j := i + 1; j <= firstMatchIndex; j++ {
+					jTask := (*tasks)[j]
+					// fmt.Println("\t\t-> looking at", jTask.Name, "due on day", jTask.UserDueDay)
 
-				daysToAdd := (daysBetweenDates) * x / numMatchingTasks
-				// fmt.Println("\t\t-> also, we're going to add", daysToAdd, "days out from the due date of", task.Name, "which is due on day", task.UserDueDay)
+					daysToAdd := (daysBetweenDates) * x / numMatchingTasks
+					// fmt.Println("\t\t-> also, we're going to add", daysToAdd, "days out from the due date of", task.Name, "which is due on day", task.UserDueDay)
 
-				jTask.ModifiedDueDay = task.UserDueDay + daysToAdd
-				// fmt.Println("\t\t-> so, the new due day of", jTask.Name, "is", jTask.ModifiedDueDay)
-				x++
-				if newSpan > jTask.UserSpan {
-					jTask.ModifiedSpan = newSpan
-				} else {
-					jTask.ModifiedSpan = jTask.UserSpan
+					jTask.ModifiedDueDay = task.UserDueDay + daysToAdd
+					// fmt.Println("\t\t-> so, the new due day of", jTask.Name, "is", jTask.ModifiedDueDay)
+					x++
+					if newSpan > jTask.UserSpan {
+						jTask.ModifiedSpan = newSpan
+					} else {
+						jTask.ModifiedSpan = jTask.UserSpan
+					}
+
+					// so i guess we have to send this back to the slice
+					(*tasks)[j] = jTask
 				}
-
-				// so i guess we have to send this back to the slice
-				(*tasks)[j] = jTask;
-			}
+			// } else {
+			// 	if newSpan > (*tasks)[i].UserSpan {
+			// 		(*tasks)[i+1].ModifiedSpan = newSpan
+			// 	} else {
+			// 		(*tasks)[i+1].ModifiedSpan = (*tasks)[i].UserSpan
+			// 	}
+			// }
 			firstMatchIndex = i
 		}
 	}
