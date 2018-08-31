@@ -130,6 +130,9 @@ func addTask(tasks *[]t.Task) {
 
 func viewTasks(tasks *[]t.Task) {
 	sortTasks(tasks)
+
+	fmt.Print("Here's your todo list today:\n\n")
+
 	currentDay := int(time.Now().Unix() / (3600 * 24))
 	for _, task := range *tasks {
 		task.Display(currentDay)
@@ -168,7 +171,7 @@ func displayHelp() {
 	fmt.Println("\ta\tadd a task")
 	fmt.Println("\te\tedit a task")
 	fmt.Println("\td\tdelete a task")
-	fmt.Println("\tv\tview a todo list")
+	fmt.Println("\tv\tview today's todo list")
 	fmt.Println("\ts\tsettings")
 	fmt.Println("\tq\tquit")
 	fmt.Println("\th\thelp")

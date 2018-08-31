@@ -82,12 +82,13 @@ func (t Task) GetDaysUntilDue(currentDay int) int {
 func (t Task) Display(currentDay int) {
 	daysUntilDue := t.GetDaysUntilDue(currentDay)
 	if daysUntilDue == 1 {
-		fmt.Println("Finish", t.Name)
+		fmt.Println("\tFinish", t.Name)
 	} else if daysUntilDue < 1 {
-		fmt.Println("Finish (OVERDUE!)", t.Name)
+		fmt.Println("\tFinish (OVERDUE!)", t.Name)
 	} else if t.IsDateInRange(currentDay) {
-		fmt.Println("Do 1/"+strconv.Itoa(daysUntilDue), "of", t.Name)
-	} else {
-		fmt.Println(t.Name, "isn't due for another", daysUntilDue, "days")
+		fmt.Println("\tDo 1/"+strconv.Itoa(daysUntilDue), "of", t.Name)
 	}
+	// else {
+	// fmt.Println(t.Name, "isn't due for another", daysUntilDue, "days")
+	// }
 }
