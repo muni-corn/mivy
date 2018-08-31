@@ -81,7 +81,9 @@ func (t Task) GetDaysUntilDue(currentDay int) int {
 // range.
 func (t Task) Display(currentDay int) {
 	daysUntilDue := t.GetDaysUntilDue(currentDay)
-	if daysUntilDue == 1 {
+	if t.Done && t.IsDateInRange(currentDay) {
+		fmt.Println(t.Name, "is done!")
+	} else if daysUntilDue == 1 {
 		fmt.Println("\tFinish", t.Name)
 	} else if daysUntilDue < 1 {
 		fmt.Println("\tFinish (OVERDUE!)", t.Name)
