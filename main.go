@@ -26,7 +26,7 @@ func main() {
 			fmt.Println("TODO: edit a task")
 			saveData(tasks)
 		case 'd':
-			fmt.Println("TODO: delete a task")
+			markATaskAsDone(&tasks);
 			saveData(tasks)
 		case 'v':
 			viewTasks(&tasks)
@@ -131,12 +131,32 @@ func addTask(tasks *[]t.Task) {
 func viewTasks(tasks *[]t.Task) {
 	sortTasks(tasks)
 
-	fmt.Print("Here's your todo list today:\n\n")
+	fmt.Print("\nHere's your todo list today:\n\n")
 
 	currentDay := int(time.Now().Unix() / (3600 * 24))
 	for _, task := range *tasks {
 		task.Display(currentDay)
 	}
+	fmt.Println()
+}
+
+func markATaskAsDone(tasks *[]t.Task) {
+	index := getATaskIndex(*tasks)
+	(*tasks)[index].Done = true;
+	t := (*tasks)[index]
+	fmt.Println("\"" + t.Name + "\" has been marked as done. Good job! ;)")
+}
+
+func getATaskIndex(tasks []t.Task) int {
+	fmt.Print("\n");
+	for i, task := range tasks {
+		fmt.Println("\t", i, "\t" + task.Name)
+	}
+	fmt.Print("\nEnter the number of the task you want to change: ")
+	var index int
+	fmt.Scan(&index)
+
+	return index
 }
 
 func readData() (tasks []t.Task) {
@@ -170,7 +190,7 @@ func displayHelp() {
 	fmt.Println("Here's what you can do:")
 	fmt.Println("\ta\tadd a task")
 	fmt.Println("\te\tedit a task")
-	fmt.Println("\td\tdelete a task")
+	fmt.Println("\td\tmark a task as done")
 	fmt.Println("\tv\tview today's todo list")
 	fmt.Println("\ts\tsettings")
 	fmt.Println("\tq\tquit")
