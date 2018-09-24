@@ -11,8 +11,6 @@ import (
 func main() {
 	tasks := readData()
 	fmt.Println("Welcome to Mivy!")
-	fmt.Println("Today is day", time.Now().Unix()/(3600*24))
-
 	displayHelp()
 	for {
 		var input string
@@ -26,7 +24,7 @@ func main() {
 			fmt.Println("TODO: edit a task")
 			saveData(tasks)
 		case 'd':
-			markATaskAsDone(&tasks);
+			markATaskAsDone(&tasks)
 			saveData(tasks)
 		case 'v':
 			viewTasks(&tasks)
@@ -87,26 +85,26 @@ func sortTasks(tasks *[]t.Task) {
 			// fmt.Println("\t\t-> we'll try to set the new span of these tasks to", newSpan)
 
 			// if numMatchingTasks > 1 {
-				var x = 1 // used for multiplying daysBetweenDates / numMatchingTasks
-				for j := i + 1; j <= firstMatchIndex; j++ {
-					jTask := (*tasks)[j]
-					// fmt.Println("\t\t-> looking at", jTask.Name, "due on day", jTask.UserDueDay)
+			var x = 1 // used for multiplying daysBetweenDates / numMatchingTasks
+			for j := i + 1; j <= firstMatchIndex; j++ {
+				jTask := (*tasks)[j]
+				// fmt.Println("\t\t-> looking at", jTask.Name, "due on day", jTask.UserDueDay)
 
-					daysToAdd := (daysBetweenDates) * x / numMatchingTasks
-					// fmt.Println("\t\t-> also, we're going to add", daysToAdd, "days out from the due date of", task.Name, "which is due on day", task.UserDueDay)
+				daysToAdd := (daysBetweenDates) * x / numMatchingTasks
+				// fmt.Println("\t\t-> also, we're going to add", daysToAdd, "days out from the due date of", task.Name, "which is due on day", task.UserDueDay)
 
-					jTask.ModifiedDueDay = task.UserDueDay + daysToAdd
-					// fmt.Println("\t\t-> so, the new due day of", jTask.Name, "is", jTask.ModifiedDueDay)
-					x++
-					if newSpan > jTask.UserSpan {
-						jTask.ModifiedSpan = newSpan
-					} else {
-						jTask.ModifiedSpan = jTask.UserSpan
-					}
-
-					// so i guess we have to send this back to the slice
-					(*tasks)[j] = jTask
+				jTask.ModifiedDueDay = task.UserDueDay + daysToAdd
+				// fmt.Println("\t\t-> so, the new due day of", jTask.Name, "is", jTask.ModifiedDueDay)
+				x++
+				if newSpan > jTask.UserSpan {
+					jTask.ModifiedSpan = newSpan
+				} else {
+					jTask.ModifiedSpan = jTask.UserSpan
 				}
+
+				// so i guess we have to send this back to the slice
+				(*tasks)[j] = jTask
+			}
 			// } else {
 			// 	if newSpan > (*tasks)[i].UserSpan {
 			// 		(*tasks)[i+1].ModifiedSpan = newSpan
@@ -123,8 +121,7 @@ func addTask(tasks *[]t.Task) {
 	var foo t.Task
 	foo.Prompt()
 	*tasks = append(*tasks, foo)
-	fmt.Println("Task added! Here are all the tasks you have now:")
-	viewTasks(tasks)
+	fmt.Println("Task added!")
 	fmt.Println()
 }
 
@@ -142,15 +139,15 @@ func viewTasks(tasks *[]t.Task) {
 
 func markATaskAsDone(tasks *[]t.Task) {
 	index := getATaskIndex(*tasks)
-	(*tasks)[index].Done = true;
+	(*tasks)[index].Done = true
 	t := (*tasks)[index]
 	fmt.Println("\"" + t.Name + "\" has been marked as done. Good job! ;)")
 }
 
 func getATaskIndex(tasks []t.Task) int {
-	fmt.Print("\n");
+	fmt.Print("\n")
 	for i, task := range tasks {
-		fmt.Println("\t", i, "\t" + task.Name)
+		fmt.Println("\t", i, "\t"+task.Name)
 	}
 	fmt.Print("\nEnter the number of the task you want to change: ")
 	var index int
@@ -171,19 +168,15 @@ func readData() (tasks []t.Task) {
 // information and uses the mivy/data package
 // to write the data to a file.
 func saveData(tasks []t.Task) {
-	fmt.Println("Saving data...")
-
 	// create the Data object and save it
 	d := data.Data{Tasks: tasks}
 	data.WriteData(d)
-
-	fmt.Println("Saved!")
-	fmt.Println()
 }
 
 func quit(tasks []t.Task) {
 	saveData(tasks)
 	fmt.Println("Goodbye :)")
+	fmt.Println()
 }
 
 func displayHelp() {
