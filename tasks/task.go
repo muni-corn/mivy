@@ -3,11 +3,11 @@ package tasks
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"strings"
 	"time"
-	"math"
 )
 
 // Group holds the name of a group as a string
@@ -114,7 +114,6 @@ promptSelection:
 
 		t.GroupIndex = len(*groups) - 1
 
-
 	default:
 		// otherwise, we're guessing this is a number
 		// we'll make sure it's in range
@@ -174,8 +173,8 @@ func (t Task) IsDateInRange() bool {
 
 // GetDaysUntil returns the amount of days until
 // the given date
-func GetDaysUntil(date time.Time ) int {
-	untilDueDate := math.Ceil((float64(time.Until(date)) / float64(time.Hour * 24)))
+func GetDaysUntil(date time.Time) int {
+	untilDueDate := math.Ceil((float64(time.Until(date)) / float64(time.Hour*24)))
 
 	return int(untilDueDate)
 }
@@ -189,8 +188,8 @@ func (t Task) Display(groups []Group) {
 	daysUntilUser := GetDaysUntil(t.UserDueDate)
 
 	var groupString string
-	if (t.GroupIndex >= 0) {
-		groupString = "- " + string(groups[t.GroupIndex]);
+	if t.GroupIndex >= 0 {
+		groupString = string(groups[t.GroupIndex])
 	}
 
 	dueDateString := t.UserDueDate.Format("Monday, January 2")
@@ -198,22 +197,33 @@ func (t Task) Display(groups []Group) {
 		return
 	} else if t.IsDateInRange() {
 		if daysUntilModified == 1 {
-			fmt.Println("\tFinish", t.Name, groupString)
+			fmt.Println("\tFinish", t.Name)
 		} else if daysUntilModified < 1 {
-			fmt.Println("\t(OVERDUE!) Finish", t.Name, groupString)
+			// only display as overdue if both the modified date and user
+			// date are past
+			if daysUntilUser < 1 {
+				fmt.Println("\t(OVERDUE!) Finish", t.Name)
+			} else {
+				fmt.Println("\tFinish", t.Name)
+			}
 		} else if t.IsDateInRange() {
-			fmt.Println("\tDo 1/"+strconv.Itoa(int(daysUntilModified)), "of", t.Name, groupString)
+			fmt.Println("\tDo 1/"+strconv.Itoa(int(daysUntilModified)), "of", t.Name)
 		} else {
 			fmt.Println(t.Name, "isn't due for another", daysUntilModified, "days")
 		}
-		
-		if daysUntilUser > 0 {
-			fmt.Print("\t\tDue in ", daysUntilUser, " days on ", dueDateString)
+
+		if daysUntilUser == 1 {
+			fmt.Print("\t\t", groupString, ". Due tomorrow, ", dueDateString)
+		} else if daysUntilUser > 0 {
+			fmt.Print("\t\t", groupString, ". Due in ", daysUntilUser, " days on ", dueDateString)
 		} else if daysUntilUser == 0 {
-			fmt.Print("\t\tDue today, ", dueDateString)
+			fmt.Print("\t\t", groupString, ". Due today, ", dueDateString)
+		} else if daysUntilUser == -1 {
+			fmt.Print("\t\t", groupString, ". Due yesterday, on ", dueDateString)
 		} else if daysUntilUser < 0 {
-			fmt.Print("\t\tDue ", -daysUntilUser, " days ago on ", dueDateString)
+			fmt.Print("\t\t", groupString, ". Due ", -daysUntilUser, " days ago on ", dueDateString)
 		}
+
 
 		fmt.Print("\n\n")
 	}
@@ -238,7 +248,6 @@ func Unmarshal(dataVersion int, task string) (t Task, err error) {
 		split := strings.Split(task, " ")
 
 		t.UserDueDate, err = time.ParseInLocation("20060102", split[1], time.Local)
-
 
 		if err != nil {
 			panic(err)
