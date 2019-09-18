@@ -45,9 +45,9 @@ func GetDueDateString(dueDate time.Time) string {
     }
 }
 
-func OpenRofiWithMesg(mesg string) (io.WriteCloser, io.ReadCloser, error) {
+func OpenRofiWithMesg(mesg, prompt string) (io.WriteCloser, io.ReadCloser, error) {
     log.Printf("open rofi with mesg: %s", mesg)
-    cmd := exec.Command("rofi", "-dmenu", "-mesg", mesg)
+    cmd := exec.Command("rofi", "-dmenu", "-p", prompt, "-mesg", mesg)
 
     // get pipes
     in, err := cmd.StdinPipe()

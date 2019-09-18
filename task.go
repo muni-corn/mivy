@@ -15,7 +15,7 @@ type Task struct {
 	Group          string    `json:"group"`
     Complete       bool      `json:"complete"`
 	UserDueDate    time.Time `json:"userDueDate"`
-	OptimalDueDate time.Time `json:"optimalDueDate"`
+	OptimalDueDate time.Time `json:"-"`
     SnoozedUntil   time.Time `json:"snoozedUntil"`
 }
 
@@ -83,7 +83,7 @@ func getStringToNextTag(tokens []string) string {
 }
 
 func (t *Task) PromptName() {
-    val, err := getValueFromRofi("What's this task's title?")
+    val, err := getValueFromRofi("What's this task's title?", "Title:")
     if err != nil {
         util.RofiShowError(err)
     }
@@ -92,7 +92,7 @@ func (t *Task) PromptName() {
 }
 
 func (t *Task) PromptGroup(suggestions []string) {
-    val, err := getValueFromRofi("Which group should this task be a part of?", suggestions...)
+    val, err := getValueFromRofi("Which group should this task be a part of?", "Group", suggestions...)
     if err != nil {
         util.RofiShowError(err)
     }
@@ -101,7 +101,7 @@ func (t *Task) PromptGroup(suggestions []string) {
 }
 
 func (t *Task) PromptDueDate() {
-    val, err := getValueFromRofi("When is this task due? (m/d/yyyy; or leave blank for no date. Keep in mind that tasks with due dates take priority over those without)")
+    val, err := getValueFromRofi("When is this task due? (Leave blank for no date. Keep in mind that tasks with due dates take priority over those without)", "m/d/yyyy")
     if err != nil {
         util.RofiShowError(err)
     }
@@ -197,8 +197,8 @@ func floorDate(date time.Time) time.Time {
     return time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
 }
 
-func getValueFromRofi(prompt string, suggestions ...string) (string, error) {
-    in, out, err := util.OpenRofiWithMesg(prompt)
+func getValueFromRofi(mesg, prompt string, suggestions ...string) (string, error) {
+    in, out, err := util.OpenRofiWithMesg(mesg, prompt)
     if err != nil {
         util.RofiShowError(err)
     }

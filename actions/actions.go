@@ -16,7 +16,7 @@ func ViewTasks(tasks mivy.TaskSlice) mivy.TaskSlice {
     log.Println("opening tasks")
 
     mesg := "Here's your list of tasks. Select one to edit it, or type a new task to add."
-    in, out, err := util.OpenRofiWithMesg(mesg)
+    in, out, err := util.OpenRofiWithMesg(mesg, "Mivy")
     if err != nil {
         util.RofiShowError(err)
         return tasks
@@ -74,7 +74,7 @@ func EditTask(task *mivy.Task, tasks mivy.TaskSlice) (deleted bool) {
         mesg += fmt.Sprint("\tsnoozed until", task.SnoozedUntil.Format(util.DueDateFormat), "\n")
     }
 
-    in, out, err := util.OpenRofiWithMesg(mesg)
+    in, out, err := util.OpenRofiWithMesg(mesg, "Action")
     if err != nil {
         util.RofiShowError(err)
     }
