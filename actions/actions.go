@@ -45,14 +45,20 @@ func ViewTasks(tasks mivy.TaskSlice) mivy.TaskSlice {
         tasks = append(tasks, mivy.NewTask(string(o), tasks.Groups()))
     } else {
         log.Println("existing task found, editing")
-        EditTask(task, tasks)
-        tasks[index] = *task
+        deleted := EditTask(task, tasks)
+        if deleted {
+            println("deleting at index", index, "while slice has length of", len(tasks))
+            tasks = append(tasks[:index], tasks[index+1:]...)
+        } else {
+            tasks[index] = *task
+        }
     }
 
     return tasks
 }
 
-func EditTask(task *mivy.Task, tasks mivy.TaskSlice) {
+// returns true if the task was deleted instead of edited
+func EditTask(task *mivy.Task, tasks mivy.TaskSlice) (deleted bool) {
     log.Printf("editing task '%s'", task.Name)
 
     mesg := fmt.Sprintf("What do you want to do with '%s'?\n", task.Name)
@@ -106,12 +112,12 @@ func EditTask(task *mivy.Task, tasks mivy.TaskSlice) {
     case actionChangeDueDate:
         task.PromptDueDate()
     case actionDelete:
-        tasks = deleteTask(*task, tasks)
+        return true
     default:
         task.Set(string(o))
     }
 
-    println("new task:", task.DisplayString())
+    return false
 }
 
 // returns the task and the index
