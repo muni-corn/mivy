@@ -39,14 +39,21 @@ func NewTask(from string, groupSuggestions []string) Task {
 func parseMetadataTags(tokens []string, task *Task) {
     for i, t := range tokens {
         switch t {
-        case "@due":
+        case "@snooze", "@snoozed", "@start", "@open":
+            var err error
+            dueDateStr := getStringToNextTag(tokens[i+1:])
+            task.SnoozedUntil, err = time.ParseInLocation(util.DueDateFormat, dueDateStr, time.Local)
+            if err != nil {
+                task.SnoozedUntil = time.Time{}
+            }
+        case "@due", "@date", "@duedate":
             var err error
             dueDateStr := getStringToNextTag(tokens[i+1:])
             task.UserDueDate, err = time.ParseInLocation(util.DueDateFormat, dueDateStr, time.Local)
             if err != nil {
                 task.UserDueDate = time.Time{}
             }
-        case "@group":
+        case "@group", "@class":
             task.Group = getStringToNextTag(tokens[i+1:])
         default:
             continue
