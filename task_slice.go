@@ -29,6 +29,7 @@ func (s TaskSlice) Groups() []string {
     i := 0
     for k := range set {
         keys[i] = k
+        i++
     }
 
     return keys
