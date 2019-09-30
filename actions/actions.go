@@ -82,39 +82,53 @@ func EditTask(task *mivy.Task, tasks mivy.TaskSlice) (deleted bool) {
 
     // actions
     const (
-        actionMarkDoneToday = "Mark it done for today"
         actionMarkComplete = "Mark it complete"
+        actionMarkDoneToday = "Mark it done for today"
+        actionVisitURL = "Visit URL"
         actionChangeName = "Change its name"
         actionChangeGroup = "Change its group"
         actionChangeDueDate = "Change its due date"
+        actionChangeURL = "Change its URL"
         actionDelete = "Delete this task"
     )
 
     in.Write([]byte(actionMarkComplete + "\n"))
     in.Write([]byte(actionMarkDoneToday + "\n"))
+    in.Write([]byte(actionVisitURL + "\n"))
     in.Write([]byte(actionChangeName + "\n"))
     in.Write([]byte(actionChangeGroup + "\n"))
     in.Write([]byte(actionChangeDueDate + "\n"))
+    in.Write([]byte(actionChangeURL + "\n"))
     in.Write([]byte(actionDelete + "\n"))
     in.Close()
 
     bufout := bufio.NewReader(out)
+    if bufout.Size() <= 0 {
+        return false
+    }
     o, _, _ := bufout.ReadLine()
+
     switch string(o) {
     case actionMarkDoneToday:
         task.MarkDoneForToday()
     case actionMarkComplete:
         task.MarkComplete()
+    case actionVisitURL:
+        task.VisitURL()
     case actionChangeName:
         task.PromptName()
     case actionChangeGroup:
         task.PromptGroup(tasks.Groups())
     case actionChangeDueDate:
         task.PromptDueDate()
+    case actionChangeURL:
+        task.PromptURL()
     case actionDelete:
         return true
     default:
-        task.Set(string(o))
+        if string(o) != "" {
+            task.Set(string(o))
+        }
     }
 
     return false

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
+    "os/exec"
 
     "github.com/muni-corn/mivy/util"
 )
@@ -16,6 +17,7 @@ type Task struct {
     Complete       bool      `json:"complete"`
 	UserDueDate    time.Time `json:"userDueDate"`
 	OptimalDueDate time.Time `json:"-"`
+    URL            string    `json:"url"`
     SnoozedUntil   time.Time `json:"snoozedUntil"`
 }
 
@@ -38,27 +40,30 @@ func NewTask(from string, groupSuggestions []string) Task {
 // parses metadata tags and records them in the task
 func parseMetadataTags(tokens []string, task *Task) {
     for i, t := range tokens {
+        remainingTokens := tokens[i+1:]
         switch t {
         case "@snooze", "@snoozed", "@start", "@open":
             var err error
-            dueDateStr := getStringToNextTag(tokens[i+1:])
+            dueDateStr := getStringToNextTag(remainingTokens)
             task.SnoozedUntil, err = time.ParseInLocation(util.DueDateFormat, dueDateStr, time.Local)
             if err != nil {
                 task.SnoozedUntil = time.Time{}
             }
         case "@due", "@date", "@duedate":
             var err error
-            dueDateStr := getStringToNextTag(tokens[i+1:])
+            dueDateStr := getStringToNextTag(remainingTokens)
             task.UserDueDate, err = time.ParseInLocation(util.DueDateFormat, dueDateStr, time.Local)
             if err != nil {
                 task.UserDueDate = time.Time{}
             }
         case "@group", "@class":
-            task.Group = getStringToNextTag(tokens[i+1:])
+            task.Group = getStringToNextTag(remainingTokens)
+        case "@url", "@web", "@webpage", "@website":
+            task.URL = getStringToNextTag(remainingTokens)
         default:
             continue
         }
-        parseMetadataTags(tokens[i+1:], task)
+        parseMetadataTags(remainingTokens, task)
         return
     }
 }
@@ -82,10 +87,18 @@ func getStringToNextTag(tokens []string) string {
     return strings.Join(tokens, " ")
 }
 
+func (t *Task) VisitURL() {
+    err := exec.Command("xdg-open", t.URL).Start()
+    if err != nil {
+        util.RofiShowError(err)
+    }
+}
+
 func (t *Task) PromptName() {
     val, err := getValueFromRofi("What's this task's title?", "Title:")
     if err != nil {
         util.RofiShowError(err)
+        return
     }
 
     t.Name = val
@@ -95,15 +108,35 @@ func (t *Task) PromptGroup(suggestions []string) {
     val, err := getValueFromRofi("Which group should this task be a part of?", "Group", suggestions...)
     if err != nil {
         util.RofiShowError(err)
+        return
     }
 
-    t.Group = val
+    if val != "" {
+        t.Group = val
+    }
+}
+
+func (t *Task) PromptURL() {
+    val, err := getValueFromRofi("Where on the web should this task link to?", "URL")
+    if err != nil {
+        util.RofiShowError(err)
+        return
+    }
+
+    if val != "" {
+        t.Group = val
+    }
 }
 
 func (t *Task) PromptDueDate() {
     val, err := getValueFromRofi("When is this task due? (Leave blank for no date. Keep in mind that tasks with due dates take priority over those without)", "m/d/yyyy")
     if err != nil {
         util.RofiShowError(err)
+        return
+    }
+
+    if val == "" {
+        return
     }
 
     t.UserDueDate, err = time.ParseInLocation(util.DueDateFormat, val, time.Local)
@@ -210,6 +243,9 @@ func getValueFromRofi(mesg, prompt string, suggestions ...string) (string, error
     in.Close()
 
     bufout := bufio.NewReader(out)
+    if bufout.Size() <= 0 {
+        return "", fmt.Errorf("canceled")
+    }
     o, _, err := bufout.ReadLine()
     return string(o), err
 }
