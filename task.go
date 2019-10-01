@@ -124,7 +124,7 @@ func (t *Task) PromptURL() {
     }
 
     if val != "" {
-        t.Group = val
+        t.URL = val
     }
 }
 
