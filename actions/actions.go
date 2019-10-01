@@ -71,7 +71,7 @@ func EditTask(task *mivy.Task, tasks mivy.TaskSlice) (deleted bool) {
         mesg += fmt.Sprintf("\t%s\n", util.GetDueDateString(task.UserDueDate))
     }
     if task.URL != "" {
-        mesg += fmt.Sprintf("\tlinks to %s\n", util.GetDueDateString(task.UserDueDate))
+        mesg += fmt.Sprintf("\tlinks to %s\n", task.URL)
     }
     if time.Now().Before(task.SnoozedUntil) {
         mesg += fmt.Sprintf("\tsnoozed until %s\n", task.SnoozedUntil.Format(util.DueDateFormat))
