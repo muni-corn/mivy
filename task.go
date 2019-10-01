@@ -95,7 +95,7 @@ func (t *Task) VisitURL() {
 }
 
 func (t *Task) PromptName() {
-    val, err := getValueFromRofi("What's this task's title?", "Title:")
+    val, err := getValueFromRofi("What's this task's title?", "Title")
     if err != nil {
         util.RofiShowError(err)
         return

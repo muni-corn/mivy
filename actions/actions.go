@@ -65,14 +65,20 @@ func EditTask(task *mivy.Task, tasks mivy.TaskSlice) (deleted bool) {
 
     // display information about the task
     if task.Group != "" {
-        mesg += fmt.Sprint("\tin group ", task.Group, "\n")
+        mesg += fmt.Sprintf("\tin group %s\n", task.Group)
     }
     if !task.UserDueDate.IsZero() {
-        mesg += fmt.Sprint("\t", util.GetDueDateString(task.UserDueDate), "\n")
+        mesg += fmt.Sprintf("\t%s\n", util.GetDueDateString(task.UserDueDate))
+    }
+    if task.URL != "" {
+        mesg += fmt.Sprintf("\tlinks to %s\n", util.GetDueDateString(task.UserDueDate))
     }
     if time.Now().Before(task.SnoozedUntil) {
-        mesg += fmt.Sprint("\tsnoozed until", task.SnoozedUntil.Format(util.DueDateFormat), "\n")
+        mesg += fmt.Sprintf("\tsnoozed until %s\n", task.SnoozedUntil.Format(util.DueDateFormat))
     }
+
+    // trim off trailing newline
+    mesg = mesg[:len(mesg)-1]
 
     in, out, err := util.OpenRofiWithMesg(mesg, "Action")
     if err != nil {
@@ -94,7 +100,9 @@ func EditTask(task *mivy.Task, tasks mivy.TaskSlice) (deleted bool) {
 
     in.Write([]byte(actionMarkComplete + "\n"))
     in.Write([]byte(actionMarkDoneToday + "\n"))
-    in.Write([]byte(actionVisitURL + "\n"))
+    if task.URL != "" {
+        in.Write([]byte(actionVisitURL + "\n"))
+    }
     in.Write([]byte(actionChangeName + "\n"))
     in.Write([]byte(actionChangeGroup + "\n"))
     in.Write([]byte(actionChangeDueDate + "\n"))
